@@ -1,0 +1,70 @@
+extends layout
+block heads
+    script.
+        $(function () {
+            var socket = io();
+            $('form').submit(function () {
+                socket.emit('bid price', $('#sendPrice').val());
+                $('#priceBid').val('');
+                return false;
+            });
+            socket.on('bid price', function (msg) {
+                $('#priceBid').append($('<li>').text(msg));
+            });
+        });
+    style(type="text/css").
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font: 13px Helvetica, Arial;
+        }
+
+        form {
+            background: #000;
+            padding: 3px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        form input {
+            border: 0;
+            padding: 10px;
+            width: 90%;
+            margin-right: .5%;
+        }
+
+        form button {
+            width: 9%;
+            background: rgb(130, 224, 255);
+            border: none;
+            padding: 10px;
+        }
+
+        #priceBid {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #priceBid li {
+            padding: 5px 10px;
+        }
+
+        #priceBid li:nth-child(odd) {
+            background: #eee;
+        }
+
+block content
+    ul#priceBid
+    form
+        input(id="sendPrice",autocomplete="off")
+        button 报价
+
+
+
+
