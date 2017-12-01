@@ -5,7 +5,7 @@ block heads
             var socket = io();
             $('form').submit(function () {
                 socket.emit('bid price', $('#sendPrice').val());
-                $('#priceBid').val('');
+                $('#sendPrice').val('');
                 return false;
             });
             socket.on('bid price', function (msg) {
