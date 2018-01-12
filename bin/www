@@ -92,16 +92,33 @@ function onListening() {
 /**
  * socket.io ??
  */
+var user_count=0;
+
 io.on('connection', function(socket){
-    console.log('a user connected?');
+    console.log('a user connected');
+
+    user_count++;
+    io.emit('onlineCount',user_count);
+
+
     socket.on('disconnect', function(){
         console.log('a user disconneted?');
+        user_count--;
+        io.emit('onlineCount',user_count);
     });
+    
 });
 //??
 io.on('connection', function(socket){
     socket.on('bid price', function(msg){
         console.log('message: ' + msg);
+        msg=JSON.stringify(msg);
         io.emit('bid price', msg);
     });
 });
+
+io.on('error',function () {
+    user_count--;
+    io.emit('onlineCount',user_count);
+})
+

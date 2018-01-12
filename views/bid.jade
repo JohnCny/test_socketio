@@ -1,17 +1,35 @@
 extends layout
 block heads
+
     script.
         $(function () {
             var socket = io();
+
             $('form').submit(function () {
-                socket.emit('bid price', $('#sendPrice').val());
+                var postData={
+                    "price":$('#sendPrice').val(),
+                    "cdt":""
+                };
+                socket.emit('bid price',postData);
                 $('#sendPrice').val('');
                 return false;
             });
+
             socket.on('bid price', function (msg) {
-                $('#priceBid').append($('<li>').text(msg));
+                var newBid=JSON.parse(msg);
+                $('#priceBid').append($('<li>').text("报价:"+newBid.price));
             });
+
+            socket.on('onlineCount',function (msg) {
+                $('#onlineCount').text("当前在线:"+msg+"人");
+            })
         });
+
+
+
+
+
+
     style(type="text/css").
         * {
             margin: 0;
@@ -60,10 +78,46 @@ block heads
         }
 
 block content
+    p#timeshow
+    p#onlineCount
     ul#priceBid
     form
         input(id="sendPrice",autocomplete="off")
         button 报价
+
+    script.
+        var websocket = null;
+        //判断当前浏览器是否支持WebSocket
+        if ('WebSocket' in window) {
+            websocket = new WebSocket("ws://192.168.198.19:8001/timer");
+        }
+        else {
+            alert('Not support websocket')
+        }
+
+        //接收到消息的回调方法
+        websocket.onmessage = function (event) {
+            var data=event.data;
+            var day=parseInt(data/(86400000)).toString();
+            var remain=data%86400000;
+            var hours=parseInt(remain/(3600000)).toString();
+            remain=remain%3600000;
+            var minutes=parseInt(remain/(60000)).toString();
+            remain=remain%60000
+            var seconds=parseInt(remain/1000).toString();
+            $('#timeshow').text("倒计时："+day+"日"+hours+"小时"+minutes+"分"+seconds+"秒");
+        }
+
+        //关闭连接
+        function closeWebSocket() {
+            websocket.close();
+        }
+
+        //监听窗口关闭事件，当窗口关闭时，主动去关闭websocket连接，防止连接还没断开就关闭窗口，server端会抛异常。
+        window.onbeforeunload = function () {
+            closeWebSocket();
+        }
+
 
 
 
